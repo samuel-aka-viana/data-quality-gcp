@@ -1,0 +1,61 @@
+config {
+  type: "table",
+  schema: "workshop_gov",
+  name: "transactions_curated",
+  description: "Tabela final de transações higienizadas e enriquecidas. Registros que falham nas assertions não são permitidos aqui.",
+  tags: ["daily", "critical"],
+
+  // Documentação das Colunas (Aparece no Data Catalog)
+  columns: {
+    transaction_id: "Identificador único da transação (PK)",
+    transaction_date: "Data da venda (formato DATE)",
+    store_id: "Identificador da loja física",
+    product_sku: "Código do produto normalizado (Upper Case)",
+    amount: "Valor total da transação. Deve ser estritamente positivo.",
+    category: "Segmentação do valor (Calculado via Regra JS)",
+    customer_email: "E-mail de contato do cliente",
+    ingestion_time: "Timestamp de quando este dado foi processado"
+  },
+
+  // --- O GUARD-RAIL DE QUALIDADE ---
+  assertions: {
+    // 1. Unicidade: Garante que não duplique IDs
+    uniqueKey: ["transaction_id"],
+
+    // 2. Completude: Campos obrigatórios
+    nonNull: ["transaction_id", "store_id", "transaction_date"],
+
+    // 3. Regras de Negócio (Lógica Customizada)
+    rowConditions: [
+      // Regra: Não existe venda com valor negativo ou zero
+      "amount > 0",
+      // Regra: Não podemos processar vendas do futuro
+      "transaction_date <= CURRENT_DATE()"
+    ]
+  }
+}
+
+SELECT
+  transaction_id,
+  -- Conversão e Limpeza de Data
+  CAST(transaction_date AS DATE) AS transaction_date,
+
+  store_id,
+
+  -- Normalização de Texto
+  UPPER(product_sku) AS product_sku,
+
+  -- Conversão Numérica
+  CAST(amount AS NUMERIC) AS amount,
+
+  -- APLICAÇÃO DA REGRA JAVASCRIPT (Definida em includes/rules.js)
+  -- Isso gera um CASE WHEN automático no SQL final
+  ${rules.classify_transaction("amount")} AS category,
+
+  customer_email,
+
+  -- Metadado de Auditoria
+  CURRENT_TIMESTAMP() AS ingestion_time
+
+FROM
+  ${ref("raw_transactions")}
