@@ -1,5 +1,5 @@
 config {
-  type: "view", -- ou "table"
+  type: "view",
   schema: "workshop_gov",
   name: "transactions_curated",
   tags: ["daily"]

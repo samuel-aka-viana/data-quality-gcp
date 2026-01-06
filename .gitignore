@@ -50,3 +50,5 @@ token.json
 *.tfvars
 
 node_modules/
+**/__pycache__
+my_gcp_creds.json

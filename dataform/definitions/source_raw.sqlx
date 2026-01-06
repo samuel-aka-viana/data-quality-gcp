@@ -1,7 +1,0 @@
-config {
-  type: "declaration",
-  database: "data-quality-483423",
-  schema: "workshop_gov",
-  name: "raw_transactions",
-  description: "Tabela bruta contendo dados de transações. Pode conter dados sujos (nulos, negativos, datas futuras) para fins de teste de qualidade."
-}
