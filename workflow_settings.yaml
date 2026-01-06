@@ -1,0 +1,5 @@
+dataformCoreVersion: 3.0.0
+defaultProject: data-quality-483423
+defaultLocation: us-central1
+defaultDataset: workshop_gov
+defaultAssertionDataset: workshop_gov_assertions
