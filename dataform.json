@@ -1,0 +1,7 @@
+{
+  "defaultSchema": "workshop_gov",
+  "assertionSchema": "workshop_gov_assertions",
+  "warehouse": "bigquery",
+  "defaultDatabase": "data-quality-483423",
+  "defaultLocation": "us-central1"
+}
