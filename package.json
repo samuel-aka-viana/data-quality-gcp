@@ -1,0 +1,6 @@
+{
+  "name": "workshop-data-quality",
+  "dependencies": {
+    "@dataform/core": "3.0.0"
+  }
+}
