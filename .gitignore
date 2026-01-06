@@ -48,3 +48,5 @@ token.json
 *.tfstate.backup
 .terraform.lock.hcl
 *.tfvars
+
+node_modules/

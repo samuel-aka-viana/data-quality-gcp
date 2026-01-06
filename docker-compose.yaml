@@ -6,19 +6,28 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
-    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
-    _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow-providers-google>=10.12.0 google-cloud-bigquery pandas"
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+
     AIRFLOW__CORE__FERNET_KEY: FB0o_zt4e3ZkkZS3kvKuRIgrco7pbi7t6jQxeUYp40A=
-    AIRFLOW__CORE__LOAD_EXAMPLES: False
+    AIRFLOW__WEBSERVER__SECRET_KEY: "sua_chave_secreta_fixa_aqui_pode_ser_qualquer_coisa"
+
+    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
     AIRFLOW__API__AUTH_BACKEND: airflow.api.auth.backend.basic_auth
+
+    _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow-providers-google>=10.12.0 google-cloud-bigquery pandas"
+
     GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/gcp_creds/application_default_credentials.json
-    AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?extra__google_cloud_platform__project=data-quality-483423&extra__google_cloud_platform__key_path=%2Fopt%2Fairflow%2Fgcp_creds%2Fapplication_default_credentials.json"
+    AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?extra__google_cloud_platform__key_path=%2Fopt%2Fairflow%2Fgcp_creds%2Fapplication_default_credentials.json&extra__google_cloud_platform__project=data-quality-483423"
+    GCP_PROJECT: "data-quality-483423"
+    GCP_PROJECT_ID: "data-quality-483423"
+
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    # Garante que o arquivo local seja montado no caminho que a variável acima aponta
     - ./my_gcp_creds.json:/opt/airflow/gcp_creds/application_default_credentials.json:ro
+
   user: "${AIRFLOW_UID}:0"
   depends_on:
     - postgres
