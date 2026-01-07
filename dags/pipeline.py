@@ -43,6 +43,7 @@ create_raw_sql = f"""
 def run_dataplex_and_wait(**kwargs):
     """
     Dispara o DataScan, aguarda a execução e falha a task se a qualidade for ruim.
+    CORREÇÃO: Usa a 'view=FULL' para garantir que recebemos os resultados do teste.
     """
     credentials, project = google.auth.default()
     client = dataplex_v1.DataScanServiceClient(credentials=credentials)
@@ -56,7 +57,11 @@ def run_dataplex_and_wait(**kwargs):
     print(f"⏳ Scan iniciado. Job ID: {job_name}")
 
     while True:
-        job = client.get_data_scan_job(name=job_name)
+        request_status = dataplex_v1.GetDataScanJobRequest(
+            name=job_name, view=dataplex_v1.GetDataScanJobRequest.DataScanJobView.FULL
+        )
+
+        job = client.get_data_scan_job(request=request_status)
         state = job.state
 
         if state in [
@@ -81,12 +86,12 @@ def run_dataplex_and_wait(**kwargs):
 
     result = job.data_quality_result
 
-    print(f"📊 Resultado Final: {'APROVADO' if result.passed else 'REPROVADO'}")
     print(f"🔍 Linhas verificadas: {result.row_count}")
+    print(f"📊 Resultado Final: {'APROVADO' if result.passed else 'REPROVADO'}")
 
     if not result.passed:
         error_msg = (
-            "🚨 A QUALIDADE DOS DADOS FALHOU! Verifique o Dataplex para detalhes."
+            f"🚨 A QUALIDADE DOS DADOS FALHOU! Linhas checadas: {result.row_count}"
         )
         raise AirflowException(error_msg)
 
